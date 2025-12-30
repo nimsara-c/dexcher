@@ -23,6 +23,7 @@ public:
     Application()
     {
         this->initConfig();
+        std::cout << "Monitoring keyboard in the background. Press 'End' to exit.\n";
     }
 
     ~Application()
@@ -37,7 +38,7 @@ public:
             if (GetAsyncKeyState(VK_END) & 0x8000)
             {
                 std::cout << "End key pressed. Exiting..." << std::endl;
-                break; // Exit the loop
+                break;
             }
 
             if (GetAsyncKeyState(VK_ESCAPE) & 0x8000)
