@@ -79,8 +79,8 @@ private:
         json data = json::parse(jsonFile);
         jsonFile.close();
 
-        _config.activeAppList = data["activeAppList"].get<std::vector<std::string>>();
-        _config.totalDesktopCount = data["totalDesktopCount"].get<unsigned int>();
+        this->_config.activeAppList = data["activeAppList"].get<std::vector<std::string>>();
+        this->_config.totalDesktopCount = data["totalDesktopCount"].get<unsigned int>();
     }
 
     std::string getActiveWindowTitle()

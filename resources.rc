@@ -1,0 +1,25 @@
+MAINICON ICON "favicon.ico"
+
+1 VERSIONINFO
+FILEVERSION     1,0,0,0
+PRODUCTVERSION  1,0,0,0
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "080904E4"
+    BEGIN
+      VALUE "CompanyName", "Nimsara Chamindu"
+      VALUE "FileDescription", "A simple easy-to-use desktop switching application"
+      VALUE "FileVersion", "1.0"
+      VALUE "InternalName", "dexcher"
+      VALUE "LegalCopyright", "Nimsara Chamindu"
+      VALUE "OriginalFilename", "Dexcher.exe"
+      VALUE "ProductName", "Dexcher"
+      VALUE "ProductVersion", "1.0"
+    END
+  END
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x809, 1252
+  END
+END
