@@ -71,7 +71,7 @@ public:
     }
 
 private:
-    void initConfig(std::string jsonFileName = "config.json")
+    void initConfig(std::string jsonFileName = "settings.json")
     {
         using json = nlohmann::json;
 
@@ -102,13 +102,6 @@ private:
 
             std::string windowTitle(_windowTitle.begin(), _windowTitle.end());
             return windowTitle;
-
-            /*
-            const char *name = "Code";
-            size_t status = windowTitle.find(name);
-            if(status == std::string::npos) std::cout << "Not Found!\n";
-            std::cout << "Status " << status << "\n";
-            */
         }
         else
         {

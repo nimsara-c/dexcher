@@ -1,2 +1,2 @@
-g++ -Iinclude -Iinclude/tray main.cpp -Llib -ltray -o desktopSwitcher
+g++ -Iinclude -Iinclude/tray src/main.cpp -Llib -ltray -o desktopSwitcher
 desktopSwitcher
