@@ -13,6 +13,7 @@
 
 // From External Sources
 #include <nlohmann/json.hpp>
+#include <tray/tray.hpp>
 
 // Custom Files
 #include "types.hpp"
@@ -32,7 +33,11 @@ public:
 
     void run()
     {
-        while (true)
+        // Create a separate thread for the tray icon
+        std::thread trayThread(&Application::runTrayIcon, this);
+
+        // Main loop
+        while (this->isRunning)
         {
             // Check if the 'End' key is pressed (VK_END is the virtual key code for 'End')
             if (GetAsyncKeyState(VK_END) & 0x8000)
@@ -68,9 +73,31 @@ public:
             // Add a small delay to prevent high CPU usage and rapid-fire detection
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
         }
+
+        trayThread.join();
     }
 
 private:
+    ConfigStruct _config;
+    unsigned int currDesktopNo = 1;
+    bool isRunning = true;
+
+private:
+    // Run tray icon in a separate thread
+    void runTrayIcon()
+    {
+        using Tray::Button;
+        using Tray::Tray;
+
+        Tray tray("Dexcher", "favicon.ico");
+        tray.addEntry(Button("Exit", [&]
+                             {
+            tray.exit();
+            this->isRunning = false; }));
+
+        tray.run();
+    }
+
     void initConfig(std::string jsonFileName = "settings.json")
     {
         using json = nlohmann::json;
@@ -152,10 +179,6 @@ private:
         keyRelease(VK_LWIN);
         keyRelease(side);
     }
-
-private:
-    ConfigStruct _config;
-    unsigned int currDesktopNo = 1;
 };
 
 #endif
