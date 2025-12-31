@@ -48,36 +48,9 @@ public:
         while (this->isRunning)
         {
             this->handleCursorSwitching();
-            // Check if the 'End' key is pressed (VK_END is the virtual key code for 'End')
-            if (GetAsyncKeyState(VK_END) & 0x8000)
-            {
-                std::cout << "End key pressed. Exiting..." << std::endl;
+
+            if (!this->handleKeyboardSwitching())
                 break;
-            }
-
-            if (GetAsyncKeyState(VK_ESCAPE) & 0x8000)
-            {
-                if (isCurrentWindowInActiveAppList())
-                {
-                    std::cout << "Switching Desktop" << "\n";
-                    if (currDesktopNo < this->_config.totalDesktopCount)
-                    {
-                        currDesktopNo++;
-                        switchDesktop(VK_RIGHT);
-                    }
-                    else
-                    {
-                        currDesktopNo = 1;
-                        for (unsigned short i = this->_config.totalDesktopCount; i > currDesktopNo; i--)
-                        {
-                            switchDesktop(VK_LEFT);
-                            Sleep(300);
-                        }
-                    }
-                }
-
-                Sleep(500);
-            }
 
             // Add a small delay to prevent high CPU usage and rapid-fire detection
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
@@ -159,6 +132,42 @@ private:
         }
 
         return CURSORPOS::MIDDLE;
+    }
+
+    bool handleKeyboardSwitching()
+    {
+        // Check if the 'End' key is pressed (VK_END is the virtual key code for 'End')
+        if (GetAsyncKeyState(VK_END) & 0x8000)
+        {
+            std::cout << "End key pressed. Exiting..." << std::endl;
+            return false;
+        }
+
+        if (GetAsyncKeyState(VK_ESCAPE) & 0x8000)
+        {
+            if (isCurrentWindowInActiveAppList())
+            {
+                std::cout << "Switching Desktop" << "\n";
+                if (currDesktopNo < this->_config.totalDesktopCount)
+                {
+                    currDesktopNo++;
+                    switchDesktop(VK_RIGHT);
+                }
+                else
+                {
+                    currDesktopNo = 1;
+                    for (unsigned short i = this->_config.totalDesktopCount; i > currDesktopNo; i--)
+                    {
+                        switchDesktop(VK_LEFT);
+                        Sleep(300);
+                    }
+                }
+            }
+
+            Sleep(300);
+        }
+
+        return true;
     }
 
     void handleCursorSwitching()
