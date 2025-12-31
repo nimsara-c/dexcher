@@ -30,6 +30,7 @@ public:
         HWND hwnd = GetConsoleWindow();
         // Hides the window
         ShowWindow(hwnd, SW_HIDE);
+        CloseHandle(hwnd);
 
         // Store Screen Resolution
         this->screenRes = this->getPrimaryScreenResolution();
@@ -47,9 +48,11 @@ public:
         // Main loop
         while (this->isRunning)
         {
-            this->handleCursorSwitching();
+            if (this->_config.isCursorSwitchingOn)
+                this->handleCursorSwitching();
 
-            this->handleKeyboardSwitching();
+            if (this->_config.isKeyboardSwitchingOn)
+                this->handleKeyboardSwitching();
 
             // Add a small delay to prevent high CPU usage and rapid-fire detection
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
@@ -90,6 +93,10 @@ private:
 
         this->_config.activeAppList = data["activeAppList"].get<std::vector<std::string>>();
         this->_config.totalDesktopCount = data["totalDesktopCount"].get<unsigned int>();
+        this->_config.offsetPixels = data["offsetPixels"].get<unsigned int>();
+        this->_config.isKeyboardSwitchingOn = data["turnOnKeyboardSwitching"].get<bool>();
+        this->_config.isCursorSwitchingOn = data["turnOnMouseSwitching"].get<bool>();
+        this->_config.isMouseSwitchingFollowsActiveAppListRule = data["doesMouseSwitchingFollowsActiveAppListRule"].get<bool>();
     }
 
     Vector2 getPrimaryScreenResolution()
@@ -162,25 +169,30 @@ private:
 
     void handleCursorSwitching()
     {
-        CURSORPOS status = this->checkCursorPosStatus();
-
-        if (status == CURSORPOS::LEFT_SIDE)
+        // Check if cursor follows active app list rule and a window in list is active or doesn't follow the rule at all
+        if ((this->_config.isMouseSwitchingFollowsActiveAppListRule && this->isCurrentWindowInActiveAppList()) || !this->_config.isMouseSwitchingFollowsActiveAppListRule)
         {
-            if (this->currDesktopNo > 1)
+
+            CURSORPOS status = this->checkCursorPosStatus(this->_config.offsetPixels);
+
+            if (status == CURSORPOS::LEFT_SIDE)
             {
-                this->switchDesktop(VK_LEFT);
-                this->currDesktopNo--;
-                Sleep(300);
+                if (this->currDesktopNo > 1)
+                {
+                    this->switchDesktop(VK_LEFT);
+                    this->currDesktopNo--;
+                    Sleep(300);
+                }
             }
-        }
 
-        if (status == CURSORPOS::RIGHT_SIDE)
-        {
-            if (this->currDesktopNo < this->_config.totalDesktopCount)
+            if (status == CURSORPOS::RIGHT_SIDE)
             {
-                this->switchDesktop(VK_RIGHT);
-                this->currDesktopNo++;
-                Sleep(300);
+                if (this->currDesktopNo < this->_config.totalDesktopCount)
+                {
+                    this->switchDesktop(VK_RIGHT);
+                    this->currDesktopNo++;
+                    Sleep(300);
+                }
             }
         }
     }

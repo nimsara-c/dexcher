@@ -5,6 +5,10 @@ struct ConfigStruct
 {
     std::vector<std::string> activeAppList;
     unsigned int totalDesktopCount;
+    bool isKeyboardSwitchingOn;
+    bool isCursorSwitchingOn;
+    bool isMouseSwitchingFollowsActiveAppListRule;
+    unsigned int offsetPixels;
 };
 
 struct Vector2
