@@ -30,6 +30,9 @@ public:
         HWND hwnd = GetConsoleWindow();
         // Hides the window
         ShowWindow(hwnd, SW_HIDE);
+
+        // Store Screen Resolution
+        this->screenRes = this->getPrimaryScreenResolution();
     }
 
     ~Application()
@@ -44,6 +47,7 @@ public:
         // Main loop
         while (this->isRunning)
         {
+            this->handleCursorSwitching();
             // Check if the 'End' key is pressed (VK_END is the virtual key code for 'End')
             if (GetAsyncKeyState(VK_END) & 0x8000)
             {
@@ -86,6 +90,7 @@ private:
     ConfigStruct _config;
     unsigned int currDesktopNo = 1;
     bool isRunning = true;
+    Vector2 screenRes;
 
 private:
     // Run tray icon in a separate thread
@@ -113,6 +118,72 @@ private:
 
         this->_config.activeAppList = data["activeAppList"].get<std::vector<std::string>>();
         this->_config.totalDesktopCount = data["totalDesktopCount"].get<unsigned int>();
+    }
+
+    Vector2 getPrimaryScreenResolution()
+    {
+        Vector2 screenRes;
+        // SM_CXSCREEN for screen width, SM_CYSCREEN for screen height
+        screenRes.x = GetSystemMetrics(SM_CXSCREEN);
+        screenRes.y = GetSystemMetrics(SM_CYSCREEN);
+
+        return screenRes;
+    }
+
+    Vector2 getCurrentCursorPos()
+    {
+        POINT p;
+        // Get the cursor position in screen coordinates
+        if (GetCursorPos(&p))
+        {
+            return Vector2(p.x, p.y);
+        }
+        else
+        {
+            return Vector2(-1, -1);
+        }
+    }
+
+    CURSORPOS checkCursorPosStatus(long error = 5)
+    {
+        Vector2 mousePos = this->getCurrentCursorPos();
+
+        if (mousePos.x <= error)
+        {
+            return CURSORPOS::LEFT_SIDE;
+        }
+
+        if (mousePos.x + error >= this->screenRes.x)
+        {
+            return CURSORPOS::RIGHT_SIDE;
+        }
+
+        return CURSORPOS::MIDDLE;
+    }
+
+    void handleCursorSwitching()
+    {
+        CURSORPOS status = this->checkCursorPosStatus();
+
+        if (status == CURSORPOS::LEFT_SIDE)
+        {
+            if (this->currDesktopNo > 1)
+            {
+                this->switchDesktop(VK_LEFT);
+                this->currDesktopNo--;
+                Sleep(300);
+            }
+        }
+
+        if (status == CURSORPOS::RIGHT_SIDE)
+        {
+            if (this->currDesktopNo < this->_config.totalDesktopCount)
+            {
+                this->switchDesktop(VK_RIGHT);
+                this->currDesktopNo++;
+                Sleep(300);
+            }
+        }
     }
 
     std::string getActiveWindowTitle()
