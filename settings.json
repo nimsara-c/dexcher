@@ -1,6 +1,6 @@
 {
   "activeAppList": ["Code", "Edge"],
-  "totalDesktopCount": 3,
+  "totalDesktopCount": 2,
   "turnOnKeyboardSwitching": true,
   "turnOnMouseSwitching": true,
   "doesMouseSwitchingFollowsActiveAppListRule": true,
