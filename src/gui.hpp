@@ -241,6 +241,8 @@ public:
                     ImGui::Indent(this->m_winSize.x - 200);
                     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(18.0f, 8.0f));
                     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10.0f, 35.0f));
+                    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8, 0.3, 0.2, 1.0));
+                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0, 1.0, 1.0, 1.0));
                     if (ImGui::Button("Save", ImVec2(0, 0)))
                     {
                         this->m_config.activeAppList = Dexcher::charArrayToStrVec(this->m_activeAppListBuffer);
@@ -248,6 +250,7 @@ public:
                         _isConfigFileChanged = true;
                     }
 
+                    ImGui::PopStyleColor(2);
                     ImGui::SameLine();
 
                     if (ImGui::Button("Close", ImVec2(0, 0)))

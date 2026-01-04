@@ -44,7 +44,6 @@ public:
 
     void run()
     {
-        // Create a separate thread for the tray icon
         // std::thread guiThread(&Application::runGUI, this);
 
         std::thread trayThread(&Application::runTrayIcon, this);
@@ -85,6 +84,7 @@ private:
     void runTrayIcon()
     {
         Tray::Tray tray("Dexcher", "favicon.ico");
+
         long activeTotalDesktopCountState = (this->m_config.totalDesktopCount < 4) ? this->m_config.totalDesktopCount : 4;
         bool totalDesktopCountStatesList[4] = {false, false, false, false};
         totalDesktopCountStatesList[activeTotalDesktopCountState - 1] = true;
@@ -97,30 +97,18 @@ private:
         Tray::Submenu submenu("Total Desktop Count");
         submenu.addEntries(
             Tray::SyncedToggle("1", totalDesktopCountStatesList[0], [&](bool _state)
-                               { if(_state == true){ setTotalDesktopCountStatesList(totalDesktopCountStatesList, 4, 1); this->m_config.totalDesktopCount = 1; Dexcher::writeConfig(this->m_config); } }),
+                               { if(_state == true){ setTotalDesktopCountStatesList(totalDesktopCountStatesList, 4, 1); this->m_isConfigFileChanged = true; this->m_config.totalDesktopCount = 1; Dexcher::writeConfig(this->m_config); } }),
             Tray::SyncedToggle("2", totalDesktopCountStatesList[1], [&](bool _state)
-                               { if(_state == true){ setTotalDesktopCountStatesList(totalDesktopCountStatesList, 4, 2); this->m_config.totalDesktopCount = 2; Dexcher::writeConfig(this->m_config); } }),
+                               { if(_state == true){ setTotalDesktopCountStatesList(totalDesktopCountStatesList, 4, 2); this->m_isConfigFileChanged = true; this->m_config.totalDesktopCount = 2; Dexcher::writeConfig(this->m_config); } }),
             Tray::SyncedToggle("3", totalDesktopCountStatesList[2], [&](bool _state)
-                               { if(_state == true){ setTotalDesktopCountStatesList(totalDesktopCountStatesList, 4, 3); this->m_config.totalDesktopCount = 3; Dexcher::writeConfig(this->m_config); } }),
+                               { if(_state == true){ setTotalDesktopCountStatesList(totalDesktopCountStatesList, 4, 3); this->m_isConfigFileChanged = true; this->m_config.totalDesktopCount = 3; Dexcher::writeConfig(this->m_config); } }),
             Tray::SyncedToggle("Custom", totalDesktopCountStatesList[3], [&](bool _state)
                                { setTotalDesktopCountStatesList(totalDesktopCountStatesList, 4, 4); std::thread guiThread(&Application::runGUI, this); guiThread.join(); }));
 
         tray.addEntry(submenu);
 
         tray.addEntry(Tray::Button("Exit", [&]
-                                   {
-            tray.exit();
-            this->m_isRunning = false; }));
-
-        /*
-        tray.addEntry(Tray::Button("About", [&]
-                                   { MessageBox(
-                                         NULL,                                                                                                                         // Parent window handle (NULL for no owner)
-                                         "Dexcher\nA simple desktop switching application built to satisfy your multi-monitor needs\n\nDeveloped by Nimsara Chamindu", // The message content
-                                         "About",                                                                                                                      // The title bar caption
-                                         MB_OK | MB_ICONINFORMATION                                                                                                    // Style: OK button and an information icon
-                                     ); }));
-                                     */
+                                   { tray.exit(); this->m_isRunning = false; }));
 
         tray.run();
     }
@@ -204,7 +192,7 @@ private:
     {
         if (GetAsyncKeyState(VK_ESCAPE) & 0x8000)
         {
-            if (isCurrentWindowInActiveAppList())
+            if (isCurrentWindowInActiveAppList() || this->m_config.activeForAllApps)
             {
                 std::cout << "Switching Desktop" << "\n";
                 if (m_currDesktopNo < this->m_config.totalDesktopCount)
@@ -230,7 +218,7 @@ private:
     void handleCursorSwitching()
     {
         // Check if cursor follows active app list rule and a window in list is active or doesn't follow the rule at all
-        if ((this->m_config.isMouseSwitchingFollowsActiveAppListRule && this->isCurrentWindowInActiveAppList()) || !this->m_config.isMouseSwitchingFollowsActiveAppListRule)
+        if ((this->m_config.isMouseSwitchingFollowsActiveAppListRule && this->isCurrentWindowInActiveAppList()) || !this->m_config.isMouseSwitchingFollowsActiveAppListRule || this->m_config.activeForAllApps)
         {
 
             CURSORPOS status = this->checkCursorPosStatus(this->m_config.offsetPixels);
