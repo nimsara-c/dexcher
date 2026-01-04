@@ -14,26 +14,10 @@
 
 namespace Dexcher
 {
-    void loadConfig(ConfigStruct &_config, std::string jsonFileName = "settings.json")
-    {
-        using json = nlohmann::json;
-
-        std::ifstream jsonFile(jsonFileName);
-        json data = json::parse(jsonFile);
-        jsonFile.close();
-
-        _config.activeAppList = data["activeAppList"].get<std::vector<std::string>>();
-        _config.activeForAllApps = data["activeForAllApps"].get<bool>();
-        _config.totalDesktopCount = data["totalDesktopCount"].get<unsigned int>();
-        _config.offsetPixels = data["offsetPixels"].get<unsigned int>();
-        _config.isKeyboardSwitchingOn = data["turnOnKeyboardSwitching"].get<bool>();
-        _config.isCursorSwitchingOn = data["turnOnMouseSwitching"].get<bool>();
-        _config.isMouseSwitchingFollowsActiveAppListRule = data["doesMouseSwitchingFollowsActiveAppListRule"].get<bool>();
-    }
-
     void checkAndFixConfigFile(std::string _configFileName = "settings.json")
     {
         std::string defaultConfigString = "{\"activeAppList\":[\"code\",\"edge\",\"Command Prompt\",\"notepad\"],\"activeForAllApps\":false,\"doesMouseSwitchingFollowsActiveAppListRule\":false,\"offsetPixels\":5,\"totalDesktopCount\":2,\"turnOnKeyboardSwitching\":true,\"turnOnMouseSwitching\":true}";
+
         if (!std::filesystem::exists(_configFileName))
         {
             std::ofstream configFile(_configFileName);
@@ -55,6 +39,23 @@ namespace Dexcher
                 }
             }
         }
+    }
+
+    void loadConfig(ConfigStruct &_config, std::string jsonFileName = "settings.json")
+    {
+        using json = nlohmann::json;
+
+        std::ifstream jsonFile(jsonFileName);
+        json data = json::parse(jsonFile);
+        jsonFile.close();
+
+        _config.activeAppList = data["activeAppList"].get<std::vector<std::string>>();
+        _config.activeForAllApps = data["activeForAllApps"].get<bool>();
+        _config.totalDesktopCount = data["totalDesktopCount"].get<unsigned int>();
+        _config.offsetPixels = data["offsetPixels"].get<unsigned int>();
+        _config.isKeyboardSwitchingOn = data["turnOnKeyboardSwitching"].get<bool>();
+        _config.isCursorSwitchingOn = data["turnOnMouseSwitching"].get<bool>();
+        _config.isMouseSwitchingFollowsActiveAppListRule = data["doesMouseSwitchingFollowsActiveAppListRule"].get<bool>();
     }
 
     int writeConfig(ConfigStruct &_config, std::string jsonFileName = "settings.json")
