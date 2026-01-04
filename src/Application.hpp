@@ -45,13 +45,19 @@ public:
     void run()
     {
         // Create a separate thread for the tray icon
-        std::thread guiThread(&Application::runGUI, this);
-        /*
+        // std::thread guiThread(&Application::runGUI, this);
+
         std::thread trayThread(&Application::runTrayIcon, this);
 
         // Main loop
         while (this->m_isRunning)
         {
+            if (this->m_isConfigFileChanged)
+            {
+                Dexcher::loadConfig(this->m_config);
+                this->m_isConfigFileChanged = false;
+            }
+
             if (this->m_config.isCursorSwitchingOn)
                 this->handleCursorSwitching();
 
@@ -63,14 +69,15 @@ public:
         }
 
         trayThread.join();
-        */
-        guiThread.join();
+
+        // guiThread.join();
     }
 
 private:
     ConfigStruct m_config;
     unsigned int m_currDesktopNo = 1;
     bool m_isRunning = true;
+    bool m_isConfigFileChanged;
     Vector2 m_screenRes;
 
 private:
@@ -78,14 +85,30 @@ private:
     void runTrayIcon()
     {
         Tray::Tray tray("Dexcher", "favicon.ico");
+
+        tray.addEntry(Tray::Button("Configure", [&]
+                                   {
+                std::thread guiThread(&Application::runGUI, this);
+                guiThread.join(); }));
+
+        Tray::Submenu submenu("Total Desktop Count");
+        submenu.addEntries(
+            Tray::Button("1", [&]
+                         {this->m_config.totalDesktopCount = 1; Dexcher::writeConfig(this->m_config); }),
+            Tray::Button("2", [&]
+                         {this->m_config.totalDesktopCount = 2; Dexcher::writeConfig(this->m_config); }),
+            Tray::Button("3", [&]
+                         {this->m_config.totalDesktopCount = 3; Dexcher::writeConfig(this->m_config); }),
+            Tray::Button("Custom", [&]
+                         {std::thread guiThread(&Application::runGUI, this); guiThread.join(); }));
+        tray.addEntry(submenu);
+
         tray.addEntry(Tray::Button("Exit", [&]
                                    {
             tray.exit();
             this->m_isRunning = false; }));
 
-        Tray::Submenu submenu("Total Desktop Count");
-        submenu.addEntries(Tray::Button("1"), Tray::Button("2"), Tray::Button("3"));
-
+        /*
         tray.addEntry(Tray::Button("About", [&]
                                    { MessageBox(
                                          NULL,                                                                                                                         // Parent window handle (NULL for no owner)
@@ -93,18 +116,15 @@ private:
                                          "About",                                                                                                                      // The title bar caption
                                          MB_OK | MB_ICONINFORMATION                                                                                                    // Style: OK button and an information icon
                                      ); }));
-
-        tray.addEntry(submenu);
-        // tray.addEntry(Tray::Submenu("Total Desktop Count"))->addEntry(Tray::Button("1"))->setDisabled(false);
-        // tray.addEntry(Tray::Submenu("Total Desktop Count"))->addEntry(Tray::Button("2"))->setDisabled(false);
+                                     */
 
         tray.run();
     }
 
     void runGUI()
     {
-        GUI gui("Dexcher", Vector2(560, 370));
-        gui.render(this->m_isRunning);
+        GUI gui("Dexcher", Vector2(560, 350));
+        gui.render(this->m_isRunning, this->m_isConfigFileChanged);
     }
 
     /*

@@ -156,7 +156,7 @@ private:
     }
 
 public:
-    int render(bool &_isGUIRunning)
+    int render(bool &_isGUIRunning, bool &_isConfigFileChanged)
     {
         this->init();
 
@@ -187,6 +187,7 @@ public:
 
                 ImGui::BeginTabBar("##Tabs", ImGuiTabBarFlags_None);
 
+                // ------------------------------- TAB: Settings -----------------------------------------
                 if (ImGui::BeginTabItem("Settings"))
                 {
                     ImGui::PushFont(this->m_ctntFont);
@@ -208,7 +209,7 @@ public:
                     ImGui::SameLine();
                     if (ImGui::Button("+"))
                     {
-                        this->m_config.totalDesktopCount;
+                        this->m_config.totalDesktopCount++;
                     }
 
                     ImGui::AlignTextToFramePadding();
@@ -222,24 +223,75 @@ public:
                     // ImGui::PopStyleVar();
 
                     ImVec2 size = ImVec2(-1.0f, ImGui::GetTextLineHeight() * 5);
-                    ImGui::InputTextMultiline("TextEditor",                              // Label (hidden using "##")
-                                              this->m_activeAppListBuffer,               // Buffer
-                                              IM_ARRAYSIZE(this->m_activeAppListBuffer), // Buffer size helper macro
-                                              size,                                      // Size
-                                              ImGuiInputTextFlags_None                   // No specific flags needed for basic use
+                    ImGui::InputTextMultiline("##ActiveAppList",                                                                        // Label (hidden using "##")
+                                              this->m_activeAppListBuffer,                                                              // Buffer
+                                              IM_ARRAYSIZE(this->m_activeAppListBuffer),                                                // Buffer size helper macro
+                                              size,                                                                                     // Size
+                                              this->m_config.activeForAllApps ? ImGuiInputTextFlags_ReadOnly : ImGuiInputTextFlags_None // No specific flags needed for basic use
                     );
                     ImGui::PopFont();
 
                     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(1.0f, 1.0f));
                     ImGui::Checkbox(" Keyboard desktop switching", &this->m_config.isKeyboardSwitchingOn);
                     ImGui::Checkbox(" Mouse desktop switching", &this->m_config.isCursorSwitchingOn);
-                    ImGui::Checkbox(" Mouse switching use active app list", &this->m_config.isMouseSwitchingFollowsActiveAppListRule);
+                    ImGui::Checkbox(" Mouse switching follows active app list", &this->m_config.isMouseSwitchingFollowsActiveAppListRule);
                     ImGui::PopStyleVar();
 
-                    ImGui::Indent(this->m_winSize.x - 140);
-                    if (ImGui::Button("Update", ImVec2(0, 0)))
+                    // Save Button
+                    ImGui::Indent(this->m_winSize.x - 200);
+                    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(18.0f, 8.0f));
+                    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10.0f, 35.0f));
+                    if (ImGui::Button("Save", ImVec2(0, 0)))
                     {
+                        this->m_config.activeAppList = Dexcher::charArrayToStrVec(this->m_activeAppListBuffer);
                         Dexcher::writeConfig(this->m_config);
+                        _isConfigFileChanged = true;
+                    }
+
+                    ImGui::SameLine();
+
+                    if (ImGui::Button("Close", ImVec2(0, 0)))
+                    {
+                        glfwSetWindowShouldClose(this->m_window, GLFW_TRUE);
+                    }
+                    ImGui::PopStyleVar(2);
+                    ImGui::Unindent();
+
+                    ImGui::EndTabItem();
+                    ImGui::PopFont();
+                }
+
+                // ------------------------------- TAB: Advanced -----------------------------------------
+                if (ImGui::BeginTabItem("Advanced"))
+                {
+                    ImGui::PushFont(this->m_ctntFont);
+                    ImGui::Indent();
+
+                    ImGui::AlignTextToFramePadding();
+                    ImGui::Text("Mouse Activation Offset: \t");
+                    ImGui::SameLine();
+
+                    if (ImGui::Button("-"))
+                    {
+                        if (this->m_config.offsetPixels > 1)
+                            this->m_config.offsetPixels--;
+                    }
+                    ImGui::SameLine();
+                    ImGui::Text(std::to_string(this->m_config.offsetPixels).c_str());
+                    // ImGui::SetNextItemWidth(40.0);
+                    // ImGui::InputText("##desktops", this->m_totalDesktopCount, IM_ARRAYSIZE(this->m_totalDesktopCount), ImGuiInputTextFlags_CharsDecimal);
+                    ImGui::SameLine();
+                    if (ImGui::Button("+"))
+                    {
+                        this->m_config.offsetPixels++;
+                    }
+
+                    ImGui::Indent(this->m_winSize.x - 100);
+                    if (ImGui::Button("Save", ImVec2(0, 0)))
+                    {
+                        this->m_config.activeAppList = Dexcher::charArrayToStrVec(this->m_activeAppListBuffer);
+                        Dexcher::writeConfig(this->m_config);
+                        _isConfigFileChanged = true;
                     }
                     ImGui::Unindent();
 
@@ -247,16 +299,7 @@ public:
                     ImGui::PopFont();
                 }
 
-                // ----  HELP Tab  ----
-                if (ImGui::BeginTabItem("Help"))
-                {
-                    ImGui::PushFont(this->m_ctntFont);
-
-                    ImGui::EndTabItem();
-                    ImGui::PopFont();
-                }
-
-                // ------------------------------- TAB: Help -----------------------------------------
+                // ------------------------------- TAB: About -----------------------------------------
                 if (ImGui::BeginTabItem("About"))
                 {
 
