@@ -83,6 +83,14 @@ namespace Dexcher
         }
         return strVec;
     }
+
+    std::string strToLowerCase(std::string _str)
+    {
+        std::string str = _str;
+        std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c)
+                       { return std::tolower(c); });
+        return str;
+    }
 }
 
 #endif

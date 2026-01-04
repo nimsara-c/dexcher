@@ -275,10 +275,10 @@ private:
 
     bool isCurrentWindowInActiveAppList()
     {
-        std::string currWindowName = getActiveWindowTitle();
+        std::string currWindowName = Dexcher::strToLowerCase(getActiveWindowTitle());
         for (const auto &appName : m_config.activeAppList)
         {
-            size_t status = currWindowName.find(appName);
+            size_t status = currWindowName.find(Dexcher::strToLowerCase(appName));
             if (status != std::string::npos)
                 return true;
         }
