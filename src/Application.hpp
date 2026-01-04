@@ -85,6 +85,9 @@ private:
     void runTrayIcon()
     {
         Tray::Tray tray("Dexcher", "favicon.ico");
+        long activeTotalDesktopCountState = (this->m_config.totalDesktopCount < 4) ? this->m_config.totalDesktopCount : 4;
+        bool totalDesktopCountStatesList[4] = {false, false, false, false};
+        totalDesktopCountStatesList[activeTotalDesktopCountState - 1] = true;
 
         tray.addEntry(Tray::Button("Configure", [&]
                                    {
@@ -93,14 +96,15 @@ private:
 
         Tray::Submenu submenu("Total Desktop Count");
         submenu.addEntries(
-            Tray::Button("1", [&]
-                         {this->m_config.totalDesktopCount = 1; Dexcher::writeConfig(this->m_config); }),
-            Tray::Button("2", [&]
-                         {this->m_config.totalDesktopCount = 2; Dexcher::writeConfig(this->m_config); }),
-            Tray::Button("3", [&]
-                         {this->m_config.totalDesktopCount = 3; Dexcher::writeConfig(this->m_config); }),
-            Tray::Button("Custom", [&]
-                         {std::thread guiThread(&Application::runGUI, this); guiThread.join(); }));
+            Tray::SyncedToggle("1", totalDesktopCountStatesList[0], [&](bool _state)
+                               { if(_state == true){ setTotalDesktopCountStatesList(totalDesktopCountStatesList, 4, 1); this->m_config.totalDesktopCount = 1; Dexcher::writeConfig(this->m_config); } }),
+            Tray::SyncedToggle("2", totalDesktopCountStatesList[1], [&](bool _state)
+                               { if(_state == true){ setTotalDesktopCountStatesList(totalDesktopCountStatesList, 4, 2); this->m_config.totalDesktopCount = 2; Dexcher::writeConfig(this->m_config); } }),
+            Tray::SyncedToggle("3", totalDesktopCountStatesList[2], [&](bool _state)
+                               { if(_state == true){ setTotalDesktopCountStatesList(totalDesktopCountStatesList, 4, 3); this->m_config.totalDesktopCount = 3; Dexcher::writeConfig(this->m_config); } }),
+            Tray::SyncedToggle("Custom", totalDesktopCountStatesList[3], [&](bool _state)
+                               { setTotalDesktopCountStatesList(totalDesktopCountStatesList, 4, 4); std::thread guiThread(&Application::runGUI, this); guiThread.join(); }));
+
         tray.addEntry(submenu);
 
         tray.addEntry(Tray::Button("Exit", [&]
@@ -119,6 +123,16 @@ private:
                                      */
 
         tray.run();
+    }
+
+    void setTotalDesktopCountStatesList(bool *_list, int _length, int _activeDesktopCount)
+    {
+        for (int i = 0; i < _length; i++)
+        {
+            _list[i] = false;
+        }
+
+        _list[_activeDesktopCount - 1] = true;
     }
 
     void runGUI()
