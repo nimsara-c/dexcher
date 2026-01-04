@@ -44,8 +44,9 @@ public:
 
     void run()
     {
-        // std::thread guiThread(&Application::runGUI, this);
+        std::thread guiThread(&Application::runGUI, this);
 
+        /*
         std::thread trayThread(&Application::runTrayIcon, this);
 
         // Main loop
@@ -68,8 +69,8 @@ public:
         }
 
         trayThread.join();
-
-        // guiThread.join();
+        */
+        guiThread.join();
     }
 
 private:

@@ -289,13 +289,20 @@ public:
                         this->m_config.offsetPixels++;
                     }
 
-                    ImGui::Indent(this->m_winSize.x - 100);
+                    // Save button
+                    ImGui::Indent(this->m_winSize.x - 140);
+                    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(18.0f, 8.0f));
+                    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10.0f, 35.0f));
+                    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8, 0.3, 0.2, 1.0));
+                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0, 1.0, 1.0, 1.0));
                     if (ImGui::Button("Save", ImVec2(0, 0)))
                     {
                         this->m_config.activeAppList = Dexcher::charArrayToStrVec(this->m_activeAppListBuffer);
                         Dexcher::writeConfig(this->m_config);
                         _isConfigFileChanged = true;
                     }
+                    ImGui::PopStyleColor(2);
+                    ImGui::PopStyleVar(2);
                     ImGui::Unindent();
 
                     ImGui::EndTabItem();
@@ -303,20 +310,61 @@ public:
                 }
 
                 // ------------------------------- TAB: About -----------------------------------------
-                if (ImGui::BeginTabItem("About"))
+                if (ImGui::BeginTabItem("Help"))
                 {
 
+                    ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(1.0, 1.0, 1.0, 1.0));
                     ImGui::BeginChildFrame(2, ImVec2(this->m_winSize.x - 20, this->m_winSize.y - 70), ImGuiWindowFlags_HorizontalScrollbar);
 
-                    ImGui::Indent(10.0);
-                    ImGui::TextColored(ImVec4(1, 0.517, 0.034, 0.784), "\nWARNING:");
-                    ImGui::Indent(25.0);
-                    ImGui::PushFont(this->m_ctntFont);
-                    ImGui::Text("This Application Cannot create Parts for iso files,\nEventhough your iso file is inside another file type(ex: zip, rar, etc.)");
-                    ImGui::Text("But you can create parts of iso by following steps");
-                    ImGui::Indent(30.0);
-                    ImGui::Text("1. Mount the iso file.\n2. Copy the data in iso file.\n3. Paste that data into a Folder.\n4. Convert that Folder to a .zip/.rar\n5. Now You can Create Parts from that File.");
+                    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10.0f, 5.0f));
+
+                    ImGui::Indent();
+                    ImGui::PushFont(this->m_tabFont);
+                    ImGui::TextColored(ImVec4(1, 0.517, 0.034, 0.9), "Usage:");
                     ImGui::PopFont();
+                    ImGui::Unindent();
+
+                    ImGui::Indent(20.0);
+                    ImGui::PushFont(this->m_ctntFont);
+                    ImGui::Text("Esc - Keyboard switching key\nMove mouse to left or right sides to switch desktops accordingly.");
+                    ImGui::PopFont();
+                    ImGui::Unindent(20.0);
+
+                    ImGui::Indent();
+                    ImGui::PushFont(this->m_tabFont);
+                    ImGui::TextColored(ImVec4(1, 0.517, 0.034, 0.9), "\nSettings:");
+                    ImGui::PopFont();
+                    ImGui::Unindent();
+
+                    ImGui::Indent(20.0);
+                    ImGui::PushFont(this->m_ctntFont);
+                    ImGui::Text("Active app list - List of apps that Dexcher switches desktops\n when active.");
+                    ImGui::PopFont();
+                    ImGui::Unindent(20.0);
+
+                    ImGui::Indent();
+                    ImGui::PushFont(this->m_tabFont);
+                    ImGui::TextColored(ImVec4(1, 0.517, 0.034, 0.9), "\nAbout:");
+                    ImGui::PopFont();
+                    ImGui::Unindent();
+
+                    ImGui::Indent(20.0);
+                    ImGui::PushFont(this->m_ctntFont);
+                    ImGui::Text("Developed by Nimsara Chamindu");
+                    ImGui::Text("Email: ");
+                    ImGui::SameLine();
+                    // bool isSelected;
+                    //  ImGui::Selectable("nimsarathedev@gmail.com", &isSelected, ImGuiSelectableFlags_None);
+                    char email[30] = "nimsarathedev@gmail.com";
+                    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0, 0.0));
+                    ImGui::InputText("##Email", email, 30, ImGuiInputTextFlags_ReadOnly);
+                    ImGui::PopStyleVar();
+
+                    ImGui::PopFont();
+                    ImGui::Unindent(20.0);
+
+                    ImGui::PopStyleVar();
+                    ImGui::PopStyleColor(); // Frame_BG
 
                     ImGui::EndChildFrame();
                     ImGui::EndTabItem();

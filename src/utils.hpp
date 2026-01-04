@@ -3,6 +3,8 @@
 
 #include <vector>
 #include <string>
+#include <algorithm>
+#include <cctype>
 
 // From External Sources
 #include <nlohmann/json.hpp>
