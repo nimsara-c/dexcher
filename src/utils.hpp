@@ -17,6 +17,7 @@ namespace Dexcher
         jsonFile.close();
 
         _config.activeAppList = data["activeAppList"].get<std::vector<std::string>>();
+        _config.activeForAllApps = data["activeForAllApps"].get<bool>();
         _config.totalDesktopCount = data["totalDesktopCount"].get<unsigned int>();
         _config.offsetPixels = data["offsetPixels"].get<unsigned int>();
         _config.isKeyboardSwitchingOn = data["turnOnKeyboardSwitching"].get<bool>();

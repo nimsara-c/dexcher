@@ -18,13 +18,14 @@
 // Custom Files
 #include "types.hpp"
 #include "gui.hpp"
+#include "utils.hpp"
 
 class Application
 {
 public:
     Application()
     {
-        this->initConfig();
+        Dexcher::loadConfig(this->m_config);
         std::cout << "Monitoring keyboard in the background. Press 'End' to exit.\n";
 
         // Retrieves the handle of the current console window
@@ -106,6 +107,7 @@ private:
         gui.render(this->m_isRunning);
     }
 
+    /*
     void initConfig(std::string jsonFileName = "settings.json")
     {
         using json = nlohmann::json;
@@ -121,6 +123,7 @@ private:
         this->m_config.isCursorSwitchingOn = data["turnOnMouseSwitching"].get<bool>();
         this->m_config.isMouseSwitchingFollowsActiveAppListRule = data["doesMouseSwitchingFollowsActiveAppListRule"].get<bool>();
     }
+    */
 
     Vector2 getPrimaryScreenResolution()
     {
