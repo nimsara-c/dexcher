@@ -1,6 +1,7 @@
 .vscode/
 .git/
 export/
+backup/
 
 *.exe
 *.o

@@ -1,9 +1,1 @@
-{
-  "activeAppList": ["Code", "Edge"],
-  "activeForAllApps": true,
-  "totalDesktopCount": 2,
-  "turnOnKeyboardSwitching": true,
-  "turnOnMouseSwitching": true,
-  "doesMouseSwitchingFollowsActiveAppListRule": true,
-  "offsetPixels": 5
-}
+{"activeAppList":["Code","Edge"],"activeForAllApps":false,"doesMouseSwitchingFollowsActiveAppListRule":false,"offsetPixels":5,"totalDesktopCount":2,"turnOnKeyboardSwitching":false,"turnOnMouseSwitching":true}

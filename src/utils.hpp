@@ -1,3 +1,6 @@
+#ifndef DEXCHER_UTILS_H
+#define DEXCHER_UTILS_H
+
 #include <vector>
 #include <string>
 
@@ -8,7 +11,7 @@
 
 namespace Dexcher
 {
-    static void loadConfig(ConfigStruct &_config, std::string jsonFileName = "settings.json")
+    void loadConfig(ConfigStruct &_config, std::string jsonFileName = "settings.json")
     {
         using json = nlohmann::json;
 
@@ -25,7 +28,33 @@ namespace Dexcher
         _config.isMouseSwitchingFollowsActiveAppListRule = data["doesMouseSwitchingFollowsActiveAppListRule"].get<bool>();
     }
 
-    static const char *strVecToChar(std::vector<std::string> _strVec)
+    int writeConfig(ConfigStruct &_config, std::string jsonFileName = "settings.json")
+    {
+        using json = nlohmann::json;
+
+        json data;
+        data["activeAppList"] = _config.activeAppList;
+        data["activeForAllApps"] = _config.activeForAllApps;
+        data["totalDesktopCount"] = _config.totalDesktopCount;
+        data["offsetPixels"] = _config.offsetPixels;
+        data["turnOnKeyboardSwitching"] = _config.isKeyboardSwitchingOn;
+        data["turnOnMouseSwitching"] = _config.isCursorSwitchingOn;
+        data["doesMouseSwitchingFollowsActiveAppListRule"] = _config.isMouseSwitchingFollowsActiveAppListRule;
+
+        std::ofstream output_file(jsonFileName);
+        if (!output_file.is_open())
+        {
+            return ERRORS::FILE_NOT_FOUND;
+        }
+        else
+        {
+            output_file << data;
+            output_file.close();
+            return ERRORS::FILE_OK;
+        }
+    }
+
+    const char *strVecToChar(std::vector<std::string> _strVec)
     {
         std::string output = "";
         for (auto &str : _strVec)
@@ -35,4 +64,23 @@ namespace Dexcher
         }
         return output.c_str();
     }
+
+    std::vector<std::string> charArrayToStrVec(char *_charArray)
+    {
+        std::vector<std::string> strVec;
+        std::stringstream ss(_charArray);
+        std::string token;
+
+        while (std::getline(ss, token, '\n'))
+        {
+            // Optional: add a check to skip empty strVec if multiple delimiters appear consecutively
+            if (!token.empty())
+            {
+                strVec.push_back(token);
+            }
+        }
+        return strVec;
+    }
 }
+
+#endif

@@ -33,7 +33,7 @@ public:
         Dexcher::loadConfig(this->m_config);
 
         std::strcpy(m_activeAppListBuffer, Dexcher::strVecToChar(this->m_config.activeAppList));
-        }
+    }
 
     ~GUI()
     {
@@ -65,7 +65,6 @@ private:
 
     void setCustomTheme(ImGuiStyle &_style)
     {
-
         ImVec4 *colors = _style.Colors;
 
         colors[ImGuiCol_Tab] = ImVec4(0.9, 0.9, 0.9, 1.0);
@@ -86,13 +85,15 @@ private:
         colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.8, 0.3, 0.2, 1.0);
         colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.8, 0.3, 0.2, 1.0);
 
+        colors[ImGuiCol_CheckMark] = ImVec4(0.8, 0.3, 0.2, 0.9);
+
         _style.TabRounding = 4.0;
-        _style.WindowRounding = 5.0;
+        _style.WindowRounding = 2.0;
         _style.WindowTitleAlign = ImVec2(0.5, 0.5);
-        _style.FrameRounding = 2;
+        _style.FrameRounding = 4.0;
         _style.WindowPadding = ImVec2(10, 10);
         _style.FramePadding = ImVec2(7.0, 4.0);
-        _style.ItemSpacing = ImVec2(10.0, 15.0);
+        _style.ItemSpacing = ImVec2(10.0, 10.0);
         _style.ItemInnerSpacing = ImVec2(2.0, 0.0);
     }
 
@@ -197,21 +198,29 @@ public:
 
                     if (ImGui::Button("-"))
                     {
-                        if (this->m_totalDesktopCount > 1)
-                            this->m_totalDesktopCount--;
+                        if (this->m_config.totalDesktopCount > 1)
+                            this->m_config.totalDesktopCount--;
                     }
                     ImGui::SameLine();
-                    ImGui::Text(std::to_string(this->m_totalDesktopCount).c_str());
+                    ImGui::Text(std::to_string(this->m_config.totalDesktopCount).c_str());
                     // ImGui::SetNextItemWidth(40.0);
                     // ImGui::InputText("##desktops", this->m_totalDesktopCount, IM_ARRAYSIZE(this->m_totalDesktopCount), ImGuiInputTextFlags_CharsDecimal);
                     ImGui::SameLine();
                     if (ImGui::Button("+"))
                     {
-                        this->m_totalDesktopCount++;
+                        this->m_config.totalDesktopCount;
                     }
 
                     ImGui::AlignTextToFramePadding();
                     ImGui::Text("Active app list:");
+
+                    ImGui::SameLine();
+
+                    ImGui::PushFont(this->m_logFont);
+                    // ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(1.0f, 1.0f));
+                    ImGui::Checkbox(" All apps", &this->m_config.activeForAllApps);
+                    // ImGui::PopStyleVar();
+
                     ImVec2 size = ImVec2(-1.0f, ImGui::GetTextLineHeight() * 5);
                     ImGui::InputTextMultiline("TextEditor",                              // Label (hidden using "##")
                                               this->m_activeAppListBuffer,               // Buffer
@@ -219,12 +228,18 @@ public:
                                               size,                                      // Size
                                               ImGuiInputTextFlags_None                   // No specific flags needed for basic use
                     );
+                    ImGui::PopFont();
 
-                    ImGui::Checkbox("Keyboard desktop switching: ", &this->m_config.isKeyboardSwitchingOn);
+                    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(1.0f, 1.0f));
+                    ImGui::Checkbox(" Keyboard desktop switching", &this->m_config.isKeyboardSwitchingOn);
+                    ImGui::Checkbox(" Mouse desktop switching", &this->m_config.isCursorSwitchingOn);
+                    ImGui::Checkbox(" Mouse switching use active app list", &this->m_config.isMouseSwitchingFollowsActiveAppListRule);
+                    ImGui::PopStyleVar();
 
                     ImGui::Indent(this->m_winSize.x - 140);
-                    if (ImGui::Button("Proceed", ImVec2(0, 0)))
+                    if (ImGui::Button("Update", ImVec2(0, 0)))
                     {
+                        Dexcher::writeConfig(this->m_config);
                     }
                     ImGui::Unindent();
 
