@@ -5,6 +5,7 @@
 #include <string>
 #include <algorithm>
 #include <cctype>
+#include <filesystem>
 
 // From External Sources
 #include <nlohmann/json.hpp>
@@ -28,6 +29,32 @@ namespace Dexcher
         _config.isKeyboardSwitchingOn = data["turnOnKeyboardSwitching"].get<bool>();
         _config.isCursorSwitchingOn = data["turnOnMouseSwitching"].get<bool>();
         _config.isMouseSwitchingFollowsActiveAppListRule = data["doesMouseSwitchingFollowsActiveAppListRule"].get<bool>();
+    }
+
+    void checkAndFixConfigFile(std::string _configFileName = "settings.json")
+    {
+        std::string defaultConfigString = "{\"activeAppList\":[\"code\",\"edge\",\"Command Prompt\",\"notepad\"],\"activeForAllApps\":false,\"doesMouseSwitchingFollowsActiveAppListRule\":false,\"offsetPixels\":5,\"totalDesktopCount\":2,\"turnOnKeyboardSwitching\":true,\"turnOnMouseSwitching\":true}";
+        if (!std::filesystem::exists(_configFileName))
+        {
+            std::ofstream configFile(_configFileName);
+            if (configFile.is_open())
+            {
+                configFile << defaultConfigString;
+                configFile.close();
+            }
+        }
+        else
+        {
+            if (std::filesystem::file_size(_configFileName) == 0)
+            {
+                std::ofstream configFile(_configFileName);
+                if (configFile.is_open())
+                {
+                    configFile << defaultConfigString;
+                    configFile.close();
+                }
+            }
+        }
     }
 
     int writeConfig(ConfigStruct &_config, std::string jsonFileName = "settings.json")

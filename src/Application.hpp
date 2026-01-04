@@ -25,6 +25,7 @@ class Application
 public:
     Application()
     {
+        Dexcher::checkAndFixConfigFile();
         Dexcher::loadConfig(this->m_config);
         std::cout << "Monitoring keyboard in the background. Press 'End' to exit.\n";
 
@@ -44,9 +45,8 @@ public:
 
     void run()
     {
-        std::thread guiThread(&Application::runGUI, this);
+        // std::thread guiThread(&Application::runGUI, this);
 
-        /*
         std::thread trayThread(&Application::runTrayIcon, this);
 
         // Main loop
@@ -69,8 +69,8 @@ public:
         }
 
         trayThread.join();
-        */
-        guiThread.join();
+
+        // guiThread.join();
     }
 
 private:
@@ -129,24 +129,6 @@ private:
         GUI gui("Dexcher", Vector2(560, 360));
         gui.render(this->m_isRunning, this->m_isConfigFileChanged);
     }
-
-    /*
-    void initConfig(std::string jsonFileName = "settings.json")
-    {
-        using json = nlohmann::json;
-
-        std::ifstream jsonFile(jsonFileName);
-        json data = json::parse(jsonFile);
-        jsonFile.close();
-
-        this->m_config.activeAppList = data["activeAppList"].get<std::vector<std::string>>();
-        this->m_config.totalDesktopCount = data["totalDesktopCount"].get<unsigned int>();
-        this->m_config.offsetPixels = data["offsetPixels"].get<unsigned int>();
-        this->m_config.isKeyboardSwitchingOn = data["turnOnKeyboardSwitching"].get<bool>();
-        this->m_config.isCursorSwitchingOn = data["turnOnMouseSwitching"].get<bool>();
-        this->m_config.isMouseSwitchingFollowsActiveAppListRule = data["doesMouseSwitchingFollowsActiveAppListRule"].get<bool>();
-    }
-    */
 
     Vector2 getPrimaryScreenResolution()
     {

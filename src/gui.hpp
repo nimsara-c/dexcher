@@ -344,7 +344,7 @@ public:
 
                     ImGui::Indent(25.0);
                     ImGui::PushFont(this->m_logFont);
-                    ImGui::Text("List of apps that Dexcher switches desktops when active. The name you \nare entering must be one word from the title name when you get by \nhovering over application icon in titlebar");
+                    ImGui::Text("List of apps that Dexcher switches desktops when active. The name you \nare entering must be in the title name when you get by hovering over \napplication icon in titlebar");
                     ImGui::PopFont();
                     ImGui::Unindent(25.0);
 
