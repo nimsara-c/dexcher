@@ -17,6 +17,7 @@
 
 // Custom Files
 #include "types.hpp"
+#include "gui.hpp"
 
 class Application
 {
@@ -33,7 +34,7 @@ public:
         CloseHandle(hwnd);
 
         // Store Screen Resolution
-        this->screenRes = this->getPrimaryScreenResolution();
+        this->m_screenRes = this->getPrimaryScreenResolution();
     }
 
     ~Application()
@@ -43,15 +44,17 @@ public:
     void run()
     {
         // Create a separate thread for the tray icon
+        std::thread guiThread(&Application::runGUI, this);
+        /*
         std::thread trayThread(&Application::runTrayIcon, this);
 
         // Main loop
-        while (this->isRunning)
+        while (this->m_isRunning)
         {
-            if (this->_config.isCursorSwitchingOn)
+            if (this->m_config.isCursorSwitchingOn)
                 this->handleCursorSwitching();
 
-            if (this->_config.isKeyboardSwitchingOn)
+            if (this->m_config.isKeyboardSwitchingOn)
                 this->handleKeyboardSwitching();
 
             // Add a small delay to prevent high CPU usage and rapid-fire detection
@@ -59,28 +62,48 @@ public:
         }
 
         trayThread.join();
+        */
+        guiThread.join();
     }
 
 private:
-    ConfigStruct _config;
-    unsigned int currDesktopNo = 1;
-    bool isRunning = true;
-    Vector2 screenRes;
+    ConfigStruct m_config;
+    unsigned int m_currDesktopNo = 1;
+    bool m_isRunning = true;
+    Vector2 m_screenRes;
 
 private:
     // Run tray icon in a separate thread
     void runTrayIcon()
     {
-        using Tray::Button;
-        using Tray::Tray;
-
-        Tray tray("Dexcher", "favicon.ico");
-        tray.addEntry(Button("Exit", [&]
-                             {
+        Tray::Tray tray("Dexcher", "favicon.ico");
+        tray.addEntry(Tray::Button("Exit", [&]
+                                   {
             tray.exit();
-            this->isRunning = false; }));
+            this->m_isRunning = false; }));
+
+        Tray::Submenu submenu("Total Desktop Count");
+        submenu.addEntries(Tray::Button("1"), Tray::Button("2"), Tray::Button("3"));
+
+        tray.addEntry(Tray::Button("About", [&]
+                                   { MessageBox(
+                                         NULL,                                                                                                                         // Parent window handle (NULL for no owner)
+                                         "Dexcher\nA simple desktop switching application built to satisfy your multi-monitor needs\n\nDeveloped by Nimsara Chamindu", // The message content
+                                         "About",                                                                                                                      // The title bar caption
+                                         MB_OK | MB_ICONINFORMATION                                                                                                    // Style: OK button and an information icon
+                                     ); }));
+
+        tray.addEntry(submenu);
+        // tray.addEntry(Tray::Submenu("Total Desktop Count"))->addEntry(Tray::Button("1"))->setDisabled(false);
+        // tray.addEntry(Tray::Submenu("Total Desktop Count"))->addEntry(Tray::Button("2"))->setDisabled(false);
 
         tray.run();
+    }
+
+    void runGUI()
+    {
+        GUI gui("Dexcher", Vector2(560, 370));
+        gui.render(this->m_isRunning);
     }
 
     void initConfig(std::string jsonFileName = "settings.json")
@@ -91,22 +114,22 @@ private:
         json data = json::parse(jsonFile);
         jsonFile.close();
 
-        this->_config.activeAppList = data["activeAppList"].get<std::vector<std::string>>();
-        this->_config.totalDesktopCount = data["totalDesktopCount"].get<unsigned int>();
-        this->_config.offsetPixels = data["offsetPixels"].get<unsigned int>();
-        this->_config.isKeyboardSwitchingOn = data["turnOnKeyboardSwitching"].get<bool>();
-        this->_config.isCursorSwitchingOn = data["turnOnMouseSwitching"].get<bool>();
-        this->_config.isMouseSwitchingFollowsActiveAppListRule = data["doesMouseSwitchingFollowsActiveAppListRule"].get<bool>();
+        this->m_config.activeAppList = data["activeAppList"].get<std::vector<std::string>>();
+        this->m_config.totalDesktopCount = data["totalDesktopCount"].get<unsigned int>();
+        this->m_config.offsetPixels = data["offsetPixels"].get<unsigned int>();
+        this->m_config.isKeyboardSwitchingOn = data["turnOnKeyboardSwitching"].get<bool>();
+        this->m_config.isCursorSwitchingOn = data["turnOnMouseSwitching"].get<bool>();
+        this->m_config.isMouseSwitchingFollowsActiveAppListRule = data["doesMouseSwitchingFollowsActiveAppListRule"].get<bool>();
     }
 
     Vector2 getPrimaryScreenResolution()
     {
-        Vector2 screenRes;
+        Vector2 m_screenRes;
         // SM_CXSCREEN for screen width, SM_CYSCREEN for screen height
-        screenRes.x = GetSystemMetrics(SM_CXSCREEN);
-        screenRes.y = GetSystemMetrics(SM_CYSCREEN);
+        m_screenRes.x = GetSystemMetrics(SM_CXSCREEN);
+        m_screenRes.y = GetSystemMetrics(SM_CYSCREEN);
 
-        return screenRes;
+        return m_screenRes;
     }
 
     Vector2 getCurrentCursorPos()
@@ -132,7 +155,7 @@ private:
             return CURSORPOS::LEFT_SIDE;
         }
 
-        if (mousePos.x + error >= this->screenRes.x)
+        if (mousePos.x + error >= this->m_screenRes.x)
         {
             return CURSORPOS::RIGHT_SIDE;
         }
@@ -147,15 +170,15 @@ private:
             if (isCurrentWindowInActiveAppList())
             {
                 std::cout << "Switching Desktop" << "\n";
-                if (currDesktopNo < this->_config.totalDesktopCount)
+                if (m_currDesktopNo < this->m_config.totalDesktopCount)
                 {
-                    currDesktopNo++;
+                    m_currDesktopNo++;
                     switchDesktop(VK_RIGHT);
                 }
                 else
                 {
-                    currDesktopNo = 1;
-                    for (unsigned short i = this->_config.totalDesktopCount; i > currDesktopNo; i--)
+                    m_currDesktopNo = 1;
+                    for (unsigned short i = this->m_config.totalDesktopCount; i > m_currDesktopNo; i--)
                     {
                         switchDesktop(VK_LEFT);
                         Sleep(300);
@@ -170,27 +193,27 @@ private:
     void handleCursorSwitching()
     {
         // Check if cursor follows active app list rule and a window in list is active or doesn't follow the rule at all
-        if ((this->_config.isMouseSwitchingFollowsActiveAppListRule && this->isCurrentWindowInActiveAppList()) || !this->_config.isMouseSwitchingFollowsActiveAppListRule)
+        if ((this->m_config.isMouseSwitchingFollowsActiveAppListRule && this->isCurrentWindowInActiveAppList()) || !this->m_config.isMouseSwitchingFollowsActiveAppListRule)
         {
 
-            CURSORPOS status = this->checkCursorPosStatus(this->_config.offsetPixels);
+            CURSORPOS status = this->checkCursorPosStatus(this->m_config.offsetPixels);
 
             if (status == CURSORPOS::LEFT_SIDE)
             {
-                if (this->currDesktopNo > 1)
+                if (this->m_currDesktopNo > 1)
                 {
                     this->switchDesktop(VK_LEFT);
-                    this->currDesktopNo--;
+                    this->m_currDesktopNo--;
                     Sleep(300);
                 }
             }
 
             if (status == CURSORPOS::RIGHT_SIDE)
             {
-                if (this->currDesktopNo < this->_config.totalDesktopCount)
+                if (this->m_currDesktopNo < this->m_config.totalDesktopCount)
                 {
                     this->switchDesktop(VK_RIGHT);
-                    this->currDesktopNo++;
+                    this->m_currDesktopNo++;
                     Sleep(300);
                 }
             }
@@ -227,7 +250,7 @@ private:
     bool isCurrentWindowInActiveAppList()
     {
         std::string currWindowName = getActiveWindowTitle();
-        for (const auto &appName : _config.activeAppList)
+        for (const auto &appName : m_config.activeAppList)
         {
             size_t status = currWindowName.find(appName);
             if (status != std::string::npos)
