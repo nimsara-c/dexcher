@@ -309,7 +309,7 @@ public:
                     ImGui::PopFont();
                 }
 
-                // ------------------------------- TAB: About -----------------------------------------
+                // ------------------------------- TAB: Help -----------------------------------------
                 if (ImGui::BeginTabItem("Help"))
                 {
 
@@ -338,9 +338,15 @@ public:
 
                     ImGui::Indent(20.0);
                     ImGui::PushFont(this->m_ctntFont);
-                    ImGui::Text("Active app list - List of apps that Dexcher switches desktops\n when active.");
+                    ImGui::Text("Active app list");
                     ImGui::PopFont();
                     ImGui::Unindent(20.0);
+
+                    ImGui::Indent(25.0);
+                    ImGui::PushFont(this->m_logFont);
+                    ImGui::Text("List of apps that Dexcher switches desktops when active. The name you \nare entering must be one word from the title name when you get by \nhovering over application icon in titlebar");
+                    ImGui::PopFont();
+                    ImGui::Unindent(25.0);
 
                     ImGui::Indent();
                     ImGui::PushFont(this->m_tabFont);

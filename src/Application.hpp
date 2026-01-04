@@ -126,7 +126,7 @@ private:
 
     void runGUI()
     {
-        GUI gui("Dexcher", Vector2(560, 350));
+        GUI gui("Dexcher", Vector2(560, 360));
         gui.render(this->m_isRunning, this->m_isConfigFileChanged);
     }
 
